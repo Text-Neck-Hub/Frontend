@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { LoginPage } from './pages/LoginPage'
+import { BoardPage } from './pages/BoardPage'
+import { AngleDetectPage } from './pages/AngleDetectPage'
 
 import './App.css'
 
@@ -9,10 +11,14 @@ function App() {
       <nav style={{ padding: '1rem', display: 'flex', gap: '1rem' }}>
         <Link to="/">Home</Link>
         <Link to="/login">Login</Link>
+        <Link to="/board">Board</Link>
+        <Link to="/angle">AngleDetect</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/board" element={<BoardPage />} />
+        <Route path="/angle" element={<AngleDetectPage />} />
       </Routes>
     </Router>
   )
