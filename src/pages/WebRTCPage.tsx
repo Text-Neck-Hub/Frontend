@@ -53,7 +53,7 @@ export const WebRTCPage: React.FC = () => {
   const localStreamRef = useRef<MediaStream | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [msgInput, setMsgInput] = useState('');
-  const [isCaller, setIsCaller] = useState(false);
+  const [_, setIsCaller] = useState(false);
 
   useEffect(() => {
     const ws = new WebSocket('ws://' + window.location.hostname + ':8000/ws');
@@ -95,7 +95,7 @@ export const WebRTCPage: React.FC = () => {
         pcRef.current.close();
       }
     };
-    // eslint-disable-next-line
+ 
   }, []);
 
   async function start(caller: boolean) {
@@ -107,7 +107,7 @@ export const WebRTCPage: React.FC = () => {
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        // TURN 서버는 실제 환경에 맞게 추가
+        
       ],
     });
     localStreamRef.current.getTracks().forEach((track) => pc.addTrack(track, localStreamRef.current!));

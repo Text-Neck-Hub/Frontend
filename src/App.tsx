@@ -3,7 +3,7 @@ import { LoginPage } from './pages/LoginPage'
 import { BoardPage } from './pages/BoardPage'
 import { AngleDetectPage } from './pages/AngleDetectPage'
 import { WebRTCPage } from './pages/WebRTCPage'
-
+import { AuthCallbackPage } from './pages/AuthCallbackPage'
 import './App.css'
 
 function App() {
@@ -22,6 +22,8 @@ function App() {
         <Route path="/board" element={<BoardPage />} />
         <Route path="/angle" element={<AngleDetectPage />} />
         <Route path="/webrtc" element={<WebRTCPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>
     </Router>
   )

@@ -30,9 +30,7 @@ const Title = styled.h1`
 
 export const LoginPage: React.FC = () => {
   const handleGoogleLogin = () => {
-    // 실제로는 프론트에서 직접 구글 인증을 하지 않고, 백엔드에서 JWT 기반 인증을 처리해야 함
-    // 예시: 백엔드의 구글 OAuth2.0 로그인 엔드포인트로 리다이렉트
-    window.location.href = 'http://localhost:8080/api/auth/google'; // 백엔드 엔드포인트로 변경
+    window.location.href = 'https://api.textneckhub.o-r.kr/accounts/google/login'; 
   };
 
   return (
