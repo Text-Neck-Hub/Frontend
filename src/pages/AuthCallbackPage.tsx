@@ -26,7 +26,7 @@ export const AuthCallbackPage: React.FC = () => {
     const handleAuthCallback = async () => {
       try {
      
-        const response = await axios.get('https://api.textneckhub.o-e.kr/cert/access-token', {
+        const response = await axios.get('https://api.textneckhub.o-r.kr/v2/auth/access-token/', {
           withCredentials: true,
         });
 
@@ -37,7 +37,7 @@ export const AuthCallbackPage: React.FC = () => {
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
 
-        navigate('/dashboard');
+        navigate('/');
 
       } catch (error: any) {
         console.error('인증 콜백 처리 중 에러 발생:', error);
