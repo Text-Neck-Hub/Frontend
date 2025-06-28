@@ -29,11 +29,12 @@ export const AuthCallbackPage: React.FC = () => {
         const response = await axios.get('https://api.textneckhub.o-r.kr/v2/auth/access-token/', {
           withCredentials: true,
         });
-
+        console.log('인증 콜백 응답:', response.data);
         const data = response.data;
         const accessToken = data.access;
         const userInfo = data.user_info;
-
+        console.log('Access Token:', response.data.access);
+        console.log('Access Token:', response.data.user_info);
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
 
