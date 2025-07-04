@@ -27,15 +27,14 @@ export const AuthCallbackPage: React.FC = () => {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        const response = await axios.get('https://api.textneckhub.p-e.kr/v2/auth/access-token/', {
+        const response = await axios.get('/v2/auth/access-token/', {
           withCredentials: true,
         });
-        console.log('인증 콜백 응답:', response.data);
+        
         const data = response.data;
         const accessToken = data.access;
         const userInfo = data.user_info;
-        console.log('Access Token:', accessToken); 
-        console.log('User Info:', userInfo); 
+        
 
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('userInfo', JSON.stringify(userInfo));

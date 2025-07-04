@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Thumbnail } from './Thumbnail';
-
+import { useNavigate } from 'react-router-dom';
+import type { PostListProps } from '../types/post';
 const PostListContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -25,18 +26,20 @@ const Title = styled.h2`
   font-size: 1.2rem;
 `;
 
-export interface PostListProps {
-  posts: { id: number; title: string; thumbnail?: string }[];
-  onSelect: (id: number) => void;
-}
 
-export const PostList: React.FC<PostListProps> = ({ posts, onSelect }) => (
-  <PostListContainer>
-    {posts.map((post) => (
-      <PostPreview key={post.id} onClick={() => onSelect(post.id)}>
-        {post.thumbnail && <Thumbnail src={post.thumbnail} />}
-        <Title>{post.title}</Title>
-      </PostPreview>
-    ))}
-  </PostListContainer>
-);
+
+export const PostList: React.FC<PostListProps> = ({ posts }) => {
+  
+  const navigate = useNavigate();
+
+  return (
+    <PostListContainer>
+      {posts.map((post) => (
+        <PostPreview key={post.id} onClick={() => { navigate(`/boards/${post.id}`); }}>
+          {post.thumbnail && <Thumbnail src={post.thumbnail} />}
+          <Title>{post.title}</Title>
+        </PostPreview>
+      ))}
+    </PostListContainer>
+  );
+};

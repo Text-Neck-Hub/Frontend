@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import styled from 'styled-components'; // styled-components import 추가! ✨
 
 import { LoginPage } from './pages/LoginPage';
-import { BoardPage } from './pages/BoardPage';
+import { BoardListPage } from './pages/BoardListPage';
 import { AngleDetectPage } from './pages/AngleDetectPage';
 import { WebRTCPage } from './pages/WebRTCPage';
 import { AuthCallbackPage } from './pages/AuthCallbackPage';
@@ -51,7 +51,8 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/board" element={<BoardPage />} />
+          <Route path="/boards" element={<BoardListPage />} />
+          {/* <Route path="/boards/:id" element={<BoardDetailPage />} /> */}
           <Route path="/angle" element={<AngleDetectPage />} />
           <Route path="/webrtc" element={<WebRTCPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
@@ -68,13 +69,12 @@ const Navigation: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    const csrfToken = getCookie('csrftoken'); // ✨ 여기가 핵심! ✨
-    alert(csrfToken); // 사용자에게 로그아웃 요청 알림
+    const csrfToken = getCookie('csrftoken'); 
     localStorage.removeItem('accessToken'); 
     localStorage.removeItem('userInfo'); 
-    axios.delete('https://api.textneckhub.p-e.kr/v2/auth/refresh-token/revoke/', {
+    axios.delete('/v2/auth/refresh-token/revoke/', {
       headers: {
-        'X-CSRFToken': csrfToken, // CSRF 토큰을 헤더에 추가해줘야 해! ✨
+        'X-CSRFToken': csrfToken,
       },
       withCredentials: true, 
     }).then(() => {
@@ -88,19 +88,19 @@ const Navigation: React.FC = () => {
 
   return (
     <nav style={{ padding: '1rem', display: 'flex', gap: '1rem' }}>
-      {/* 이제 Link도 StyledNavLink를 사용해서 스타일을 통일해! */}
+ 
       <StyledNavLink to="/">Home</StyledNavLink>
-      <StyledNavLink to="/board">Board</StyledNavLink>
+      <StyledNavLink to="/boards">Board</StyledNavLink>
       <StyledNavLink to="/angle">AngleDetect</StyledNavLink>
       <StyledNavLink to="/webrtc">WebRTC</StyledNavLink>
       
       {isLoggedIn ? (
-        // 로그아웃 버튼에도 StyledNavButton을 적용!
+
         <StyledNavButton onClick={handleLogout}>
           Logout
         </StyledNavButton>
       ) : (
-        // 로그인 링크에도 StyledNavLink를 적용!
+
         <StyledNavLink to="/login">Login</StyledNavLink>
       )}
     </nav>
