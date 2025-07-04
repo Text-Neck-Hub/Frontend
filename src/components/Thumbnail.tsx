@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ThumbnailProps } from '../types/thumbnail';
 import styled from 'styled-components';
 
 const ThumbnailImg = styled.img`
@@ -10,10 +11,7 @@ const ThumbnailImg = styled.img`
   background: #eee;
 `;
 
-export interface ThumbnailProps {
-  src: string;
-  alt?: string;
-}
+
 
 export const Thumbnail: React.FC<ThumbnailProps> = ({ src, alt }) => (
   <ThumbnailImg src={src} alt={alt || 'thumbnail'} />

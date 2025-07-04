@@ -1,5 +1,4 @@
-// src/utils/cookie.ts
-// 쿠키에서 특정 이름의 값을 가져오는 함수
+
 export function getCookie(name: string) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {

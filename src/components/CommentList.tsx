@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import type { CommentListProps } from '../types/comment';
 const CommentListContainer = styled.ul`
   list-style: none;
   padding: 0;
@@ -15,14 +15,13 @@ const CommentItem = styled.li`
   color: #333;
 `;
 
-export interface CommentListProps {
-  comments: string[];
-}
+
 
 export const CommentList: React.FC<CommentListProps> = ({ comments }) => (
   <CommentListContainer>
-    {comments.map((comment, idx) => (
-      <CommentItem key={idx}>{comment}</CommentItem>
+    {comments?.map((comment, idx) => (
+      <CommentItem key={idx}>{comment.content}</CommentItem>
+      
     ))}
   </CommentListContainer>
 );

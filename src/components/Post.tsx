@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import type { PostProps } from '../types/post';
 const PostContainer = styled.div`
   background: #fff;
   border-radius: 1rem;
@@ -14,21 +14,12 @@ const Title = styled.h2`
   font-size: 1.5rem;
 `;
 
-const Content = styled.p`
-  margin: 0 0 1rem 0;
-  color: #444;
-`;
 
-export interface PostProps {
-  title: string;
-  content: string;
-  children?: React.ReactNode;
-}
 
-export const Post: React.FC<PostProps> = ({ title, content, children }) => (
+
+
+export const Post: React.FC<PostProps> = ({ title }) => (
   <PostContainer>
     <Title>{title}</Title>
-    <Content>{content}</Content>
-    {children}
   </PostContainer>
 );
