@@ -1,6 +1,6 @@
 export interface JWT {
-  accessToken: string;
-  userInfo: {
+  access: string;
+  user_info: {
     id: number;
     username: string;
     email: string;

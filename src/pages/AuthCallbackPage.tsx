@@ -29,7 +29,7 @@ export const AuthCallbackPage: React.FC = () => {
     const handleAuthCallback = async () => {
       try {
         const jwt: JWT = await getAccessToken();
-        if (!jwt || !jwt.accessToken || !jwt.userInfo) {
+        if (!jwt || !jwt.access || !jwt.user_info) {
           throw new Error("인증 정보가 유효하지 않습니다.");
         }
         setAuthInfo(jwt);
