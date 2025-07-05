@@ -69,7 +69,7 @@ const Navigation: React.FC = () => {
 
   const handleLogout = async () => {
     logout();
-    removeAccessTokenAndInfo();
+    
     try {
       await deleteRefreshToken();
       console.log("로그아웃 요청 성공!");
@@ -78,6 +78,7 @@ const Navigation: React.FC = () => {
       console.error("로그아웃 요청 실패:", error);
       alert("로그아웃 요청에 실패했습니다. 다시 시도해 주세요.");
     }
+    finally {removeAccessTokenAndInfo();}
   };
 
   return (

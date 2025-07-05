@@ -1,6 +1,6 @@
-import React from 'react';
-import type { ThumbnailProps } from '../types/thumbnail';
-import styled from 'styled-components';
+import React from "react";
+import type { ThumbnailProps } from "../types/Thumbnail";
+import styled from "styled-components";
 
 const ThumbnailImg = styled.img`
   width: 80px;
@@ -11,8 +11,6 @@ const ThumbnailImg = styled.img`
   background: #eee;
 `;
 
-
-
 export const Thumbnail: React.FC<ThumbnailProps> = ({ src, alt }) => (
-  <ThumbnailImg src={src} alt={alt || 'thumbnail'} />
+  <ThumbnailImg src={src} alt={alt || "thumbnail"} />
 );

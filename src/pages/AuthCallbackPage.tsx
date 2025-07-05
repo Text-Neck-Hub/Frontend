@@ -4,7 +4,7 @@ import styled from "styled-components";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import { getAccessToken } from "../apis/auth";
-import type { JWT } from "../types/auth";
+import type { JWT } from "../types/Jwt";
 import { setAuthInfo } from "../services/useAuth";
 const Container = styled.div`
   min-height: 100vh;
@@ -29,9 +29,7 @@ export const AuthCallbackPage: React.FC = () => {
     const handleAuthCallback = async () => {
       try {
         const jwt: JWT = await getAccessToken();
-        if (!jwt || !jwt.access || !jwt.user_info) {
-          throw new Error("인증 정보가 유효하지 않습니다.");
-        }
+        console.log(jwt);
         setAuthInfo(jwt);
         login();
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import type { PostProps } from '../types/post';
+import React from "react";
+import styled from "styled-components";
+import type { PostProps } from "../types/Post";
 const PostContainer = styled.div`
   background: #fff;
   border-radius: 1rem;
@@ -13,10 +13,6 @@ const Title = styled.h2`
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
 `;
-
-
-
-
 
 export const Post: React.FC<PostProps> = ({ title }) => (
   <PostContainer>

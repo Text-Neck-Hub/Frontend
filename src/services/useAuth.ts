@@ -1,4 +1,4 @@
-import type {JWT} from '../types/auth';
+import type {JWT} from '../types/Jwt';
 export const removeAccessTokenAndInfo = () => {
     localStorage.removeItem('accessToken'); 
     localStorage.removeItem('userInfo');

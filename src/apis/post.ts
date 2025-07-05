@@ -1,9 +1,3 @@
-// import axiosInstance from "./index";
 
-
-
-  
-
-// export default function getPostList() {
-   
-// }
+import { Http } from '../types/Http'; 
+export const getPostList = async () => await Http.get('/v1/posts');

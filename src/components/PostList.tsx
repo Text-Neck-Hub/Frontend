@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Thumbnail } from './Thumbnail';
-import { useNavigate } from 'react-router-dom';
-import type { PostListProps } from '../types/post';
+import React from "react";
+import styled from "styled-components";
+import { Thumbnail } from "./Thumbnail";
+import { useNavigate } from "react-router-dom";
+import type { PostListProps } from "../types/Post";
 const PostListContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -26,16 +26,18 @@ const Title = styled.h2`
   font-size: 1.2rem;
 `;
 
-
-
 export const PostList: React.FC<PostListProps> = ({ posts }) => {
-  
   const navigate = useNavigate();
 
   return (
     <PostListContainer>
       {posts.map((post) => (
-        <PostPreview key={post.id} onClick={() => { navigate(`/boards/${post.id}`); }}>
+        <PostPreview
+          key={post.id}
+          onClick={() => {
+            navigate(`/boards/${post.id}`);
+          }}
+        >
           {post.thumbnail && <Thumbnail src={post.thumbnail} />}
           <Title>{post.title}</Title>
         </PostPreview>

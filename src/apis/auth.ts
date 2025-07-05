@@ -1,19 +1,4 @@
 
-import axiosInstance from './index';
-
-export async function getAccessToken() {
-    const response = await axiosInstance.get('/v2/auth/access-token/', {
-          withCredentials: true,
-            
-
-        });
-    return response.data;
-}
-
-export async function deleteRefreshToken() {
-    const response = await axiosInstance.delete('/v2/auth/refresh-token/revoke/', {
-          withCredentials: true,
-
-        });
-    return response.data;
-}
+import { Http } from '../types/Http'; 
+export const getAccessToken = async () => await Http.get('/v2/auth/access-token/');
+export const deleteRefreshToken = async () => await Http.delete('/v2/auth/refresh-token/revoke/');
