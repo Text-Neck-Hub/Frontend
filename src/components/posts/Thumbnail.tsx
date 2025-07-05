@@ -1,5 +1,5 @@
 import React from "react";
-import type { ThumbnailProps } from "../types/Thumbnail";
+import type { ThumbnailProps } from "../../types/Thumbnail";
 import styled from "styled-components";
 
 const ThumbnailImg = styled.img`

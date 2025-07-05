@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { CommentListProps } from "../types/Comment";
+import type { CommentListProps } from "../../types/Comment";
 const CommentListContainer = styled.ul`
   list-style: none;
   padding: 0;

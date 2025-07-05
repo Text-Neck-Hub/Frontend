@@ -2,7 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import { Thumbnail } from "./Thumbnail";
 import { useNavigate } from "react-router-dom";
-import type { PostListProps } from "../types/Post";
+import type { PostListProps } from "../../types/Post";
+import { CreateButton } from "../buttons/Button"; // CreateButton 경로를 네 프로젝트에 맞게 확인해줘!
+
 const PostListContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -29,8 +31,13 @@ const Title = styled.h2`
 export const PostList: React.FC<PostListProps> = ({ posts }) => {
   const navigate = useNavigate();
 
+  const handleCreatePost = () => {
+    navigate("/boards/new");
+  };
+
   return (
     <PostListContainer>
+      <CreateButton onClick={handleCreatePost} text="새 게시물 작성" />
       {posts.map((post) => (
         <PostPreview
           key={post.id}

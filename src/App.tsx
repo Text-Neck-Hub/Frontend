@@ -9,7 +9,7 @@ import {
 import styled from "styled-components";
 
 import { LoginPage } from "./pages/LoginPage";
-import { BoardListPage } from "./pages/BoardListPage";
+import { BoardListPage } from "./pages/postPages/BoardListPage";
 import { AngleDetectPage } from "./pages/AngleDetectPage";
 import { WebRTCPage } from "./pages/WebRTCPage";
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
@@ -69,7 +69,7 @@ const Navigation: React.FC = () => {
 
   const handleLogout = async () => {
     logout();
-    
+
     try {
       await deleteRefreshToken();
       console.log("로그아웃 요청 성공!");
@@ -77,8 +77,9 @@ const Navigation: React.FC = () => {
     } catch (error) {
       console.error("로그아웃 요청 실패:", error);
       alert("로그아웃 요청에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      removeAccessTokenAndInfo();
     }
-    finally {removeAccessTokenAndInfo();}
   };
 
   return (

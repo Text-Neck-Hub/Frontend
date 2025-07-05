@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { PostProps } from "../types/Post";
+import type { PostProps } from "../../types/Post";
 const PostContainer = styled.div`
   background: #fff;
   border-radius: 1rem;
