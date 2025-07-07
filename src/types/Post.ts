@@ -1,5 +1,5 @@
 export interface PostProps {
-  id: number;
+  id?: number;
   title: string;
   thumbnail?: string;
   author: string;
@@ -10,11 +10,9 @@ export interface PostListProps {
   posts: PostProps[];
 }
 
-
 export interface PostDetailProps extends PostProps {
   content: string;
   views: number;
   likes: number;
   urls?: string[];
 }
-

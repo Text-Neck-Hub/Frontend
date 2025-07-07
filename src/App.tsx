@@ -9,17 +9,17 @@ import {
 import styled from "styled-components";
 
 import { LoginPage } from "./pages/LoginPage";
-import { BoardListPage } from "./pages/postPages/BoardListPage";
+import { BoardSelectionPage } from "./pages/board/BoardSelectionPage";
 import { AngleDetectPage } from "./pages/AngleDetectPage";
 import { WebRTCPage } from "./pages/WebRTCPage";
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
 import "./App.css";
-
+import { PostListPage } from "./pages/board/free/PostListPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { removeAccessTokenAndInfo } from "./services/useAuth";
-
+import PostDetailPage from "./pages/board/free/PostDetailPage";
 import { deleteRefreshToken } from "./apis/auth";
-
+import PostEditorPage from "./pages/board/free/PostEditorPage";
 const CommonNavLinkStyle = `
   color: #007bff; /* 링크 색상을 좀 더 일반적인 파란색으로 해봤어! */
   text-decoration: none; /* 기본 밑줄 제거 */
@@ -51,8 +51,16 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/boards" element={<BoardListPage />} />
-          {/* <Route path="/boards/:id" element={<BoardDetailPage />} /> */}
+          <Route path="/boards" element={<BoardSelectionPage />} />
+          <Route path="/boards/:boardType/posts/" element={<PostListPage />} />
+          <Route
+            path="/boards/:boardType/posts/new/"
+            element={<PostEditorPage />}
+          />
+          <Route
+            path="/boards/:boardType/posts/:postId/"
+            element={<PostDetailPage />}
+          />
           <Route path="/angle" element={<AngleDetectPage />} />
           <Route path="/webrtc" element={<WebRTCPage />} />
           <Route path="/auth/callback" element={<AuthCallbackPage />} />

@@ -1,7 +1,7 @@
 // src/pages/PostEditorPage.tsx
 import React from "react";
 import styled from "styled-components";
-import PostEditor from "../../components/editors/PostEditor"; // PostEditor 컴포넌트 불러오기
+import PostEditor from "../../../components/editors/PostEditor"; // PostEditor 컴포넌트 불러오기
 
 const PageTitle = styled.h1`
   text-align: center;

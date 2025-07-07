@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { GoogleLoginButton } from '../components/GoogleLoginButton';
+import React from "react";
+import styled from "styled-components";
+import { GoogleLoginButton } from "../components/buttons/GoogleLoginButton";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -30,7 +30,8 @@ const Title = styled.h1`
 
 export const LoginPage: React.FC = () => {
   const handleGoogleLogin = () => {
-    window.location.href = 'https://api.textneckhub.p-e.kr/accounts/google/login'; 
+    window.location.href =
+      "https://api.textneckhub.p-e.kr/accounts/google/login";
   };
 
   return (
