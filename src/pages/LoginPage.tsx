@@ -31,7 +31,7 @@ const Title = styled.h1`
 export const LoginPage: React.FC = () => {
   const handleGoogleLogin = () => {
     window.location.href =
-      "https://api.textneckhub.p-e.kr/accounts/google/login";
+      "https://api.textneckhub.p-e.kr/auth/accounts/google/login";
   };
 
   return (
