@@ -7,7 +7,7 @@ import {
   getCommentList,
   writeComment,
   updateComment,
-} from "../../../apis/post"; // API 함수 불러오기
+} from "../../../apis/board"; // API 함수 불러오기
 import { type PostDetailProps } from "../../../types/Post";
 import { type CommentProps } from "../../../types/Comment"; // CommentData 대신 CommentProps 사용
 import CommentEditor from "../../../components/editors/CommentEditor";

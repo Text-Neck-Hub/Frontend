@@ -2,6 +2,9 @@ import { type PaginationParams } from "../types/PaginationParams";
 import { type PostProps, type PostDetailProps } from "../types/Post";
 import { Http } from "../types/Http";
 import { type CommentProps } from "../types/Comment";
+import { type Board } from "../types/Board";
+export const getBoardList = async (): Promise<Board[]> =>
+  await Http.get<Board[]>("/board/v1/");
 
 export const getPostList = async (
   category: string, // category는 board_slug를 의미

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { PostList } from "../../../components/posts/PostList";
-import { getPostList } from "../../../apis/post";
+import { getPostList } from "../../../apis/board";
 import { type PostProps } from "../../../types/Post";
 import type { PaginationParams } from "../../../types/PaginationParams";
 import { useParams, useNavigate } from "react-router-dom";
