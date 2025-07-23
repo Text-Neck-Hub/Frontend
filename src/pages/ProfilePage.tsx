@@ -1,32 +1,98 @@
-// src/pages/ProfilePage.tsx
-
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { useAuth } from '../contexts/AuthContext';
-import { getUserProfile, putUserProfile } from '../apis/auth';
-import axios from 'axios';
-import { isOwner } from '../utils/profile';
-import { type UserProfile } from '../types/UserProfile';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import { useAuth } from "../contexts/AuthContext";
+import { getUserProfile, putUserProfile } from "../apis/auth";
+import axios from "axios";
+import { isOwner } from "../utils/profile";
+import { type UserProfile } from "../types/UserProfile";
 
 const ProfileContainer = styled.div`
-  /* ... 동일 ... */
+  max-width: 720px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
-const ProfileHeader = styled.h2`/* ... 동일 ... */`;
-const ProfileInfo = styled.div`/* ... 동일 ... */`;
-const InfoRow = styled.div`/* ... 동일 ... */`;
-const Label = styled.span`/* ... 동일 ... */`;
-const Value = styled.span`/* ... 동일 ... */`;
-const LoadingText = styled.p`/* ... 동일 ... */`;
-const ErrorText = styled.p`/* ... 동일 ... */`;
-const ButtonGroup = styled.div`/* ... 동일 ... */`;
-const Button = styled.button<{ primary?: boolean }>`/* ... 동일 ... */`;
-const Input = styled.input`/* ... 동일 ... */`;
+
+const ProfileHeader = styled.h2`
+  font-size: 2rem;
+  color: #333333;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  text-align: center;
+`;
+
+const ProfileInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eaeaea;
+`;
+
+const Label = styled.span`
+  font-weight: 600;
+  color: #555555;
+`;
+
+const Value = styled.span`
+  color: #222222;
+`;
+
+const LoadingText = styled.p`
+  font-size: 1.2rem;
+  text-align: center;
+  color: #666666;
+  margin-top: 2rem;
+`;
+
+const ErrorText = styled.p`
+  font-size: 1.1rem;
+  text-align: center;
+  color: red;
+  margin: 2rem 0;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+`;
+
+const Button = styled.button<{ primary?: boolean }>`
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: ${({ primary }) => (primary ? "#007bff" : "#eaeaea")};
+  color: ${({ primary }) => (primary ? "#ffffff" : "#333333")};
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: ${({ primary }) => (primary ? "#0056b3" : "#d5d5d5")};
+  }
+`;
+
+const Input = styled.input`
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #333333;
+  flex: 1;
+`;
 
 const ProfilePage: React.FC = () => {
   const { isLoggedIn } = useAuth();
-
-  // URL params 에서 profileId 가져오기
   const { id: profileIdParam } = useParams<{ id: string }>();
   const profileId = Number(profileIdParam);
 
@@ -36,23 +102,22 @@ const ProfilePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
-  // 프로필 로드
   const loadUserProfile = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // profileId를 넘겨서 특정 유저 프로필 가져오기
       const profile = await getUserProfile();
       setUserProfile(profile);
-      setEditProfile(profile);             // 편집용 초기값 세팅
+      setEditProfile(profile);
     } catch (err) {
       console.error("사용자 프로필 가져오기 실패:", err);
       if (axios.isAxiosError(err) && err.response) {
         if (err.response.status === 404) {
           setError("해당 사용자를 찾을 수 없습니다.");
         } else {
-          setError(`프로필 정보를 가져오는 데 실패했습니다: ${err.response.status} ${err.response.statusText}`);
+          setError(
+            `프로필 정보를 가져오는 데 실패했습니다: ${err.response.status} ${err.response.statusText}`
+          );
         }
       } else {
         setError("프로필 정보를 가져오는 데 실패했습니다.");
@@ -68,13 +133,11 @@ const ProfilePage: React.FC = () => {
     }
   }, [isLoggedIn, profileId]);
 
-  // 입력값 변경 핸들러
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditProfile(prev => ({ ...prev, [name]: value }));
+    setEditProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 수정 모드 진입
   const handleEdit = () => {
     if (userProfile) {
       setEditProfile(userProfile);
@@ -83,14 +146,12 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // 저장
   const handleSave = async () => {
     if (!userProfile) return;
 
     setLoading(true);
     setError(null);
     try {
-      // 기존 프로필 + 수정된 필드 병합
       const payload: UserProfile = {
         ...userProfile,
         ...editProfile,
@@ -106,7 +167,9 @@ const ProfilePage: React.FC = () => {
       if (axios.isAxiosError(err) && err.response) {
         setError(
           `프로필 업데이트 실패: ${err.response.status} ${err.response.statusText}` +
-          `${err.response.data?.detail ? ` - ${err.response.data.detail}` : ''}`
+            `${
+              err.response.data?.detail ? ` - ${err.response.data.detail}` : ""
+            }`
         );
       } else {
         setError("프로필 업데이트 중 알 수 없는 오류가 발생했습니다.");
@@ -151,13 +214,12 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  // 로그인 유저가 이 프로필의 소유자인지 체크
   const isProfileOwner = isOwner(userProfile.id);
 
   return (
     <ProfileContainer>
       <ProfileHeader>
-        {isProfileOwner ? '내 프로필' : `${userProfile.username}의 프로필`}
+        {isProfileOwner ? "내 프로필" : `${userProfile.username}의 프로필`}
       </ProfileHeader>
 
       <ProfileInfo>
@@ -171,7 +233,7 @@ const ProfilePage: React.FC = () => {
           {isEditing ? (
             <Input
               name="username"
-              value={editProfile.username || ''}
+              value={editProfile.username || ""}
               onChange={handleChange}
             />
           ) : (
@@ -186,7 +248,7 @@ const ProfilePage: React.FC = () => {
               <Input
                 type="email"
                 name="email"
-                value={editProfile.email || ''}
+                value={editProfile.email || ""}
                 onChange={handleChange}
               />
             ) : (
@@ -201,7 +263,7 @@ const ProfilePage: React.FC = () => {
             {isEditing ? (
               <Input
                 name="first_name"
-                value={editProfile.name || ''}
+                value={editProfile.name || ""}
                 onChange={handleChange}
               />
             ) : (
@@ -209,13 +271,14 @@ const ProfilePage: React.FC = () => {
             )}
           </InfoRow>
         )}
+
         {userProfile.bio && (
           <InfoRow>
             <Label>소개:</Label>
             {isEditing ? (
               <Input
                 name="bio"
-                value={editProfile.bio || ''}
+                value={editProfile.bio || ""}
                 onChange={handleChange}
               />
             ) : (
@@ -223,14 +286,14 @@ const ProfilePage: React.FC = () => {
             )}
           </InfoRow>
         )}
-        
+
         {userProfile.location && (
           <InfoRow>
             <Label>위치:</Label>
             {isEditing ? (
               <Input
                 name="location"
-                value={editProfile.location || ''}
+                value={editProfile.location || ""}
                 onChange={handleChange}
               />
             ) : (
@@ -244,11 +307,15 @@ const ProfilePage: React.FC = () => {
         <ButtonGroup>
           {isEditing ? (
             <>
-              <Button primary onClick={handleSave}>저장</Button>
+              <Button primary onClick={handleSave}>
+                저장
+              </Button>
               <Button onClick={handleCancel}>취소</Button>
             </>
           ) : (
-            <Button primary onClick={handleEdit}>프로필 수정</Button>
+            <Button primary onClick={handleEdit}>
+              프로필 수정
+            </Button>
           )}
         </ButtonGroup>
       )}

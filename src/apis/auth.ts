@@ -11,4 +11,4 @@ export const deleteUserProfile = async () =>
 export const putUserProfile = async (userProfile:UserProfile) =>
   await Http.put("/auth/v2/profile/me/",userProfile);
 export const refreshAccessToken = async () =>
-  await Http.get("/auth/v2/access-token/refresh/");
+  await Http.post("/auth/v2/access-token/refresh/");
