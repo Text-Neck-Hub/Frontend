@@ -5,7 +5,7 @@ import axios, {
 } from "axios";
 
 import { getCookie } from "../utils/cookie";
-
+import { refreshAccessToken } from "./auth";
 export interface ApiResponse<T> {
   statusCode: number;
   message: string;
@@ -49,7 +49,7 @@ axiosInstance.interceptors.response.use(
     console.error("응답 인터셉터 에러:", error);
 
     const originalRequest = error.config;
-    alert(error.response?.status + " " + error.response?.statusText);
+    
     if (
       error.response?.status === 401 &&
       originalRequest &&
@@ -58,12 +58,8 @@ axiosInstance.interceptors.response.use(
       (originalRequest as any)._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        if (refreshToken) {
-          const refreshResponse = await axiosInstance.post(
-            "/auth/v2/access-token/refresh/",
-            { refreshToken }
-          );
+        
+          const refreshResponse = await refreshAccessToken();
           const newAccessToken = refreshResponse.data.accessToken;
 
           localStorage.setItem("accessToken", newAccessToken);
@@ -72,14 +68,14 @@ axiosInstance.interceptors.response.use(
           ] = `Bearer ${newAccessToken}`;
 
           return axiosInstance(originalRequest);
-        }
+        
       } catch (refreshError) {
         console.error(
           "인증 콜백 처리 중 에러 발생 (토큰 갱신 실패):",
           refreshError
         );
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+
       }
     }
 
