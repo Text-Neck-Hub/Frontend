@@ -49,7 +49,7 @@ axiosInstance.interceptors.response.use(
     console.error("응답 인터셉터 에러:", error);
 
     const originalRequest = error.config;
-
+    alert(error.response?.status + " " + error.response?.statusText);
     if (
       error.response?.status === 401 &&
       originalRequest &&

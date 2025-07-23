@@ -1,2 +1,2 @@
 /// <reference types="vite/client" />
-declare module 'jsonwebtoken';
+declare module 'jwt-decode';
