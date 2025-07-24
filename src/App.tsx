@@ -69,7 +69,7 @@ const App: React.FC = () => {
             />
             <Route path="/angle" element={<AngleDetectPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
-            <Route path="/profile" element={<ProfilePage />} /> {/* 🚨🚨🚨 ProfilePage 라우트 추가! 🚨🚨🚨 */}
+            <Route path="/profile" element={<ProfilePage />} /> 
             <Route path="*" element={<div>페이지를 찾을 수 없습니다!</div>} />
           </Routes>
         </AppContainer>
