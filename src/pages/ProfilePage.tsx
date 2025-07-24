@@ -214,7 +214,7 @@ const ProfilePage: React.FC = () => {
     );
   }
 
-  const isProfileOwner = isOwner(userProfile.id);
+  const isProfileOwner = isOwner(userProfile.uid);
 
   return (
     <ProfileContainer>

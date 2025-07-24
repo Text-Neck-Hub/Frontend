@@ -77,7 +77,7 @@ axiosInstance.interceptors.response.use(
           "인증 콜백 처리 중 에러 발생 (토큰 갱신 실패):",
           refreshError
         );
-        // localStorage.removeItem("accessToken");
+        localStorage.removeItem("accessToken");
 
       }
     }
