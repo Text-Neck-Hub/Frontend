@@ -1,11 +1,11 @@
-// src/App.tsx (Routes 부분만 수정)
+import useLogout from "./hooks/useLogout"; // ⬅️ 이 줄만 추가!
+
 
 import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  useNavigate,
+  Route
 } from "react-router-dom";
 import styled from "styled-components";
 
@@ -23,8 +23,6 @@ import ProfilePage from "./pages/ProfilePage";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
-import { removeAccessTokenAndInfo } from "./services/useAuth";
-import { deleteRefreshToken } from "./apis/auth";
 
 
 const AppContainer = styled.div`
@@ -81,23 +79,10 @@ const App: React.FC = () => {
 };
 
 const NavigationContainer: React.FC = () => {
-  const { isLoggedIn, logout } = useAuth();
-  const navigate = useNavigate();
+  const { isLoggedIn  } = useAuth();
+  
 
-  const handleLogout = async () => {
-    logout();
-
-    try {
-      await deleteRefreshToken();
-      console.log("로그아웃 요청 성공!");
-      navigate("/");
-    } catch (error) {
-      console.error("로그아웃 요청 실패:", error);
-      alert("로그아웃 요청에 실패했습니다. 다시 시도해 주세요.");
-    } finally {
-      removeAccessTokenAndInfo();
-    }
-  };
+  const handleLogout = useLogout();
 
   const baseLinks: NavLink[] = [
     { text: "홈", url: "/" },
