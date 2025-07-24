@@ -1,67 +1,145 @@
-import { type AxiosRequestConfig } from 'axios'; 
-import { type HttpRequest } from './HttpRequest'; 
-import axiosInstance from '../apis/index'; 
+// import { type AxiosRequestConfig } from 'axios'; 
+// import { type HttpRequest } from './HttpRequest'; 
+// import axiosInstance from '../apis/index'; 
+
+// export class Http {
+//   public static async _request<T = any>(httpRequest: HttpRequest<T>): Promise<T> { 
+//     const { url, method, data, config } = httpRequest; 
+
+//     try {
+//       const requestConfig: AxiosRequestConfig = {
+//         ...config, 
+//       };
+
+//       const response = await method(url, data, requestConfig);
+      
+//       return response.data;
+//     } catch (error) {
+//       console.error(`요청 실패! URL: ${url}, 메서드:`, method.name || '알 수 없음', error);
+//       throw error;
+//     }
+//   }
+
+//   public static async get<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+//     return Http._request<T>({
+//       url,
+//       method: axiosInstance.get, 
+//       data, 
+//       config,
+//     });
+//   }
+
+//   public static async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+//     return Http._request<T>({
+//       url,
+//       method: axiosInstance.post, 
+//       data,
+//       config,
+//     });
+//   }
+
+//   public static async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+//     return Http._request<T>({
+//       url,
+//       method: axiosInstance.put,
+//       data,
+//       config,
+//     });
+//   }
+
+//   public static async delete<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+//     return Http._request<T>({
+//       url,
+//       method: axiosInstance.delete,
+//       data, 
+//       config,
+//     });
+//   }
+
+//   public static async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+//     return Http._request<T>({
+//       url,
+//       method: axiosInstance.patch,
+//       data,
+//       config,
+//     });
+//   }
+// }
+// src/services/Http.ts
+import { type AxiosRequestConfig } from 'axios';
+import { type HttpRequest } from './HttpRequest';
+import axiosInstance from '../apis/index';
 
 export class Http {
-  public static async _request<T = any>(httpRequest: HttpRequest<T>): Promise<T> { 
-    const { url, method, data, config } = httpRequest; 
+  public static async _request<T = any>(
+    httpRequest: HttpRequest<T>
+  ): Promise<T> {
+    const { url, method, data, config = {} } = httpRequest;
 
     try {
+      // multipart 용으로 transformRequest 기본 함수 덮어쓰기
       const requestConfig: AxiosRequestConfig = {
-        ...config, 
+        ...config,
+        // FormData면 그대로, 아니면 기존 config.transformRequest 사용
+        transformRequest:
+          config.transformRequest ??
+          ((d: any) => (d instanceof FormData ? d : JSON.stringify(d))),
       };
 
       const response = await method(url, data, requestConfig);
-      
       return response.data;
     } catch (error) {
-      console.error(`요청 실패! URL: ${url}, 메서드:`, method.name || '알 수 없음', error);
+      console.error(
+        `요청 실패! URL: ${url}, 메서드:`,
+        method.name || '알 수 없음',
+        error
+      );
       throw error;
     }
   }
 
-  public static async get<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return Http._request<T>({
-      url,
-      method: axiosInstance.get, 
-      data, 
-      config,
-    });
+  public static async get<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return Http._request<T>({ url, method: axiosInstance.get, data, config });
   }
 
-  public static async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return Http._request<T>({
-      url,
-      method: axiosInstance.post, 
-      data,
-      config,
-    });
+  public static async post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return Http._request<T>({ url, method: axiosInstance.post, data, config });
   }
 
-  public static async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return Http._request<T>({
-      url,
-      method: axiosInstance.put,
-      data,
-      config,
-    });
+  public static async put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return Http._request<T>({ url, method: axiosInstance.put, data, config });
   }
 
-  public static async delete<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+  public static async delete<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
     return Http._request<T>({
       url,
       method: axiosInstance.delete,
-      data, 
+      data,
       config,
     });
   }
 
-  public static async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return Http._request<T>({
-      url,
-      method: axiosInstance.patch,
-      data,
-      config,
-    });
+  public static async patch<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    return Http._request<T>({ url, method: axiosInstance.patch, data, config });
   }
 }

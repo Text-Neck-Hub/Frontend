@@ -1,5 +1,4 @@
 import { Http } from "../types/Http";
-import { type UserProfile } from "../types/UserProfile";
 export const getAccessToken = async () =>
   await Http.get("/auth/v2/access-token/");
 export const deleteRefreshToken = async () =>
@@ -8,7 +7,10 @@ export const getUserProfile = async () =>
   await Http.get("/auth/v2/profile/me/");
 export const deleteUserProfile = async () =>
   await Http.delete("/auth/v2/profile/me/");
-export const putUserProfile = async (userProfile:UserProfile) =>
-  await Http.put("/auth/v2/profile/me/",userProfile);
+export const putUserProfile = async (formData: FormData) =>
+  await Http.put("/auth/v2/profile/me/", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    transformRequest: (data) => data,
+  });
 export const refreshAccessToken = async () =>
   await Http.post("/auth/v2/access-token/refresh/");
