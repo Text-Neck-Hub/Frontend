@@ -49,7 +49,8 @@ axiosInstance.interceptors.response.use(
     console.error("응답 인터셉터 에러:", error);
 
     const originalRequest = error.config;
-    
+    console.log("원본 요청:", originalRequest);
+    console.log("재요청 응답:", !(originalRequest as any)._retry);
     if (
       error.response?.status === 401 &&
       originalRequest &&
@@ -60,9 +61,11 @@ axiosInstance.interceptors.response.use(
       try {
         
           const refreshResponse = await refreshAccessToken();
-          const newAccessToken = refreshResponse.data.accessToken;
+          console.log("🤬🤬🤬🤬🤬토큰 갱신 응답:", refreshResponse);
+          const newAccessToken = refreshResponse.access;
 
           localStorage.setItem("accessToken", newAccessToken);
+          console.log("😁새로운 액세스 토큰:", newAccessToken);
           axiosInstance.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${newAccessToken}`;
@@ -74,7 +77,7 @@ axiosInstance.interceptors.response.use(
           "인증 콜백 처리 중 에러 발생 (토큰 갱신 실패):",
           refreshError
         );
-        localStorage.removeItem("accessToken");
+        // localStorage.removeItem("accessToken");
 
       }
     }
