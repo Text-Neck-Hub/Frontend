@@ -200,7 +200,7 @@ const ProfilePage: React.FC = () => {
     try {
       await deleteUserProfile();
       alert("회원 탈퇴 되었습니다.");
-      await logout();
+      await logout(true);
     } catch (err) {
       console.error(err);
       setError("회원 탈퇴 중 오류가 발생했습니다.");

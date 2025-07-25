@@ -1,4 +1,3 @@
-// src/hooks/useLogout.ts
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { deleteRefreshToken } from "../apis/auth";
@@ -8,11 +7,11 @@ const useLogout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = async (resign: boolean = false) => {
     logout();
 
     try {
-      await deleteRefreshToken();
+      if (!resign) await deleteRefreshToken();
       console.log("로그아웃 요청 성공!");
       navigate("/");
     } catch (error) {
