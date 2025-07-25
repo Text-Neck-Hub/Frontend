@@ -1,5 +1,5 @@
 interface JwtPayload {
-  uid: number;
+  email: string;
   exp?: number;
   iat?: number;
 }
@@ -24,7 +24,7 @@ function decodeJwt<T>(token: string): T {
   return JSON.parse(json);
 }
 
-export function isOwner(uid: number): boolean {
+export function isOwner(email: string): boolean {
   const token = localStorage.getItem("accessToken");
   if (!token) {
     console.error("Access token이 없습니다.");
@@ -33,10 +33,10 @@ export function isOwner(uid: number): boolean {
 
   try {
     const payload = decodeJwt<JwtPayload>(token);
-    console.log("Decoded JWT payload:", payload.uid);
-    console.log("Provided UID:", uid);
-    console.log("Is owner check:", payload.uid == uid);
-    return payload.uid == uid;
+    console.log("Decoded JWT payload:", payload.email);
+    console.log("Provided UID:", email);
+    console.log("Is owner check:", payload.email == email);
+    return payload.email == email;
   } catch (err) {
     console.error("JWT 디코딩 실패", err);
     return false;
