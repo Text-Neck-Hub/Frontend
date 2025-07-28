@@ -16,9 +16,9 @@ import { BoardSelectionPage } from "./pages/board/BoardSelectionPage";
 import { AngleDetectPage } from "./pages/AngleDetectPage";
 
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
-import { PostListPage } from "./pages/board/free/PostListPage";
-import PostDetailPage from "./pages/board/free/PostDetailPage";
-import PostEditorPage from "./pages/board/free/PostEditorPage";
+import { PostListPage } from "./pages/board/PostListPage";
+import PostDetailPage from "./pages/board/PostDetailPage";
+import PostEditorPage from "./pages/board/PostEditorPage";
 import ProfilePage from "./pages/ProfilePage";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";

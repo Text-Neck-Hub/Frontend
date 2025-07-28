@@ -17,6 +17,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
 }) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillInstance = useRef<Quill | null>(null);
+  const isUpdatingInternally = useRef(false); 
 
   const modules = useMemo(
     () => ({
@@ -25,8 +26,10 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
     [toolbarOptions]
   );
 
-  const handleChange = useCallback(() => {
-    if (quillInstance.current) {
+
+  const handleChange = useCallback((_delta: any, _oldDelta: any, source: string) => {
+    if (quillInstance.current && source === "user") { 
+      isUpdatingInternally.current = true; 
       onChange(quillInstance.current.root.innerHTML);
     }
   }, [onChange]);
@@ -41,11 +44,11 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         });
 
         quillInstance.current.on("text-change", handleChange);
-      }
 
-      if (quillInstance.current.root.innerHTML !== value) {
-        quillInstance.current.root.innerHTML = value;
-      }
+        if (value) {
+            quillInstance.current.pasteHTML(value);
+        }
+      } 
     }
 
     return () => {
@@ -53,7 +56,17 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         quillInstance.current.off("text-change", handleChange);
       }
     };
-  }, [value, placeholder, modules, handleChange]);
+  }, [placeholder, modules, handleChange]);
+
+  useEffect(() => {
+    if (quillInstance.current && !isUpdatingInternally.current) {
+        const currentEditorHtml = quillInstance.current.root.innerHTML;
+        if (currentEditorHtml !== value) {
+            quillInstance.current.pasteHTML(value); 
+        }
+    }
+    isUpdatingInternally.current = false;
+  }, [value]);
 
   return (
     <div style={{ height: "auto", minHeight: "200px" }}>
