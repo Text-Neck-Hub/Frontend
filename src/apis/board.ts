@@ -23,7 +23,7 @@ export const deletePost = async (
   category: string, 
   id: number
 ): Promise<void> =>
-  await Http.delete(`/board/v1/boards/${category}/posts/${id}`);
+  await Http.delete(`/board/v1/${category}/posts/${id}/`);
 
 export const updatePost = async (
   category: string, 
@@ -31,7 +31,7 @@ export const updatePost = async (
   postData: PostDetailProps
 ): Promise<PostDetailProps> =>
   await Http.put<PostDetailProps>(
-    `/board/v1/boards/${category}/posts/${id}`,
+    `/board/v1/${category}/posts/${id}/`,
     postData
   );
 
@@ -63,3 +63,8 @@ export const updateComment = async (
   content: string
 ): Promise<CommentProps> =>
   await Http.put<CommentProps>(`/board/v1/comments/${commentId}`, { content });
+
+export const deleteComment = async (
+  commentId: number
+): Promise<void> =>
+  await Http.delete(`/board/v1/comments/${commentId}`);

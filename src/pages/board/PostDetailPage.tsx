@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styled from "styled-components";
-import { useParams } from "react-router-dom";
-import { getPostDetail, getCommentList, writeComment, updateComment } from "../../apis/board";
+import { useParams, useNavigate } from "react-router-dom";
+import { getPostDetail, getCommentList, writeComment, updateComment, deletePost, deleteComment } from "../../apis/board";
 import { type PostDetailProps } from "../../types/Post";
 import { type CommentProps } from "../../types/Comment";
+import { useAuth } from "../../contexts/AuthContext";
 
 // --- UI Components (이전과 동일하므로 생략) ---
 const PageContainer = styled.div`
@@ -134,11 +135,19 @@ const ActionButton = styled.button`
   }
 `;
 
+const PostActionContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+`;
+
+
 const PostDetailPage: React.FC = () => {
-  // ⭐️ URL 파라미터에서 boardType과 postId를 가져와!
   const { boardType, postId: idFromParams } = useParams<{ boardType: string; postId: string }>();
-  // 가져온 postId를 숫자로 변환 (이제 idFromParams가 정의되어 있음이 확실해!)
   const postId = Number(idFromParams);
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   const [post, setPost] = useState<PostDetailProps | null>(null);
   const [comments, setComments] = useState<CommentProps[]>([]);
@@ -148,7 +157,7 @@ const PostDetailPage: React.FC = () => {
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState<string>("");
 
-  const fetchComments = async (currentPostId: number) => {
+  const fetchComments = useCallback(async (currentPostId: number) => {
     if (isNaN(currentPostId)) {
         console.error("유효하지 않은 postId로 댓글을 불러올 수 없습니다.");
         return;
@@ -159,37 +168,34 @@ const PostDetailPage: React.FC = () => {
     } catch (err) {
       console.error("댓글 목록을 불러오는 데 실패했습니다.", err);
     }
-  };
+  }, []);
+
+  const fetchPostAndComments = useCallback(async () => {
+    if (!boardType || !idFromParams || isNaN(postId)) {
+      setError("유효하지 않은 게시물 ID 또는 게시판 종류입니다.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null); 
+      const postData = await getPostDetail(boardType, postId);
+      setPost(postData);
+      await fetchComments(postId);
+    } catch (err) {
+      console.error("게시물 또는 댓글을 불러오는 데 실패했습니다.", err);
+      setError("게시물 또는 댓글을 불러오는 데 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }, [boardType, idFromParams, postId, fetchComments]);
 
   useEffect(() => {
-    const fetchPostAndComments = async () => {
-      // ⭐️ 이제 idFromParams가 유효한지 검사!
-      if (!boardType || !idFromParams || isNaN(postId)) {
-        setError("유효하지 않은 게시물 ID 또는 게시판 종류입니다.");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setError(null); 
-
-        const postData = await getPostDetail(boardType, postId);
-        setPost(postData);
-
-        await fetchComments(postId);
-      } catch (err) {
-        console.error("게시물 또는 댓글을 불러오는 데 실패했습니다.", err);
-        setError("게시물 또는 댓글을 불러오는 데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPostAndComments();
-  }, [boardType, postId]); 
+  }, [fetchPostAndComments]); 
 
-  const handleCommentSubmit = async (content: string) => {
+  const handleCommentSubmit = useCallback(async (content: string) => {
     if (isNaN(postId)) {
         alert("게시물 ID가 유효하지 않아 댓글을 작성할 수 없습니다.");
         return;
@@ -197,36 +203,89 @@ const PostDetailPage: React.FC = () => {
     try {
       if (editingCommentId) {
         await updateComment(editingCommentId, content);
-        setEditingCommentId(null);
-        setEditingCommentContent("");
         alert("댓글이 성공적으로 수정되었습니다.");
       } else {
         await writeComment(postId, content);
         alert("새 댓글이 성공적으로 작성되었습니다.");
       }
+      setEditingCommentId(null);
+      setEditingCommentContent("");
       await fetchComments(postId);
     } catch (err) {
       console.error("댓글 처리 중 오류 발생:", err);
       alert("댓글 처리 중 오류가 발생했습니다.");
     }
-  };
+  }, [editingCommentId, postId, fetchComments]);
 
-  const handleEditClick = (comment: CommentProps) => {
+  const handleEditCommentClick = useCallback((comment: CommentProps) => {
     setEditingCommentId(comment.id);
     setEditingCommentContent(comment.content);
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingCommentId(null);
     setEditingCommentContent("");
-  };
+  }, []);
+
+  // ⭐️ 게시물 수정 핸들러 추가
+  const handleEditPost = useCallback(() => {
+    if (boardType && postId) {
+      navigate(`/boards/${boardType}/posts/${postId}/edit`); // 수정 페이지로 이동
+    } else {
+      alert("게시물 정보를 알 수 없어 수정 페이지로 이동할 수 없습니다.");
+    }
+  }, [boardType, postId, navigate]);
+
+  const handleDeletePost = useCallback(async () => {
+    if (!window.confirm("정말로 이 게시물을 삭제하시겠습니까?")) {
+      return;
+    }
+    if (!boardType || isNaN(postId) || !post?.id) {
+      alert("삭제할 게시물의 정보가 유효하지 않습니다.");
+      return;
+    }
+    try {
+      await deletePost(boardType, postId);
+      alert("게시물이 성공적으로 삭제되었습니다.");
+      navigate(`/boards/${boardType}/posts/`);
+    } catch (error) {
+      console.error("게시물 삭제 실패:", error);
+      alert("게시물 삭제에 실패했습니다. 다시 시도해주세요.");
+    }
+  }, [boardType, postId, post?.id, navigate]);
+
+  const handleDeleteComment = useCallback(async (commentId: number) => {
+    if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+      return;
+    }
+    try {
+      await deleteComment(commentId);
+      alert("댓글이 성공적으로 삭제되었습니다.");
+      await fetchComments(postId);
+    } catch (error) {
+      console.error("댓글 삭제 실패:", error);
+      alert("댓글 삭제에 실패했습니다. 다시 시도해주세요.");
+    }
+  }, [postId, fetchComments]);
+
 
   if (loading) return <PageContainer>게시물과 댓글 로딩 중...</PageContainer>;
   if (error) return <PageContainer>오류: {error}</PageContainer>;
   if (!post) return <PageContainer>게시물을 찾을 수 없습니다.</PageContainer>;
 
+  const isPostAuthor = currentUser && currentUser.id === Number(post.author); 
+
   return (
     <PageContainer>
+      <PostActionContainer>
+        {isPostAuthor && (
+          <>
+            <ActionButton onClick={handleEditPost}>수정</ActionButton> {/* ⭐️ 수정 버튼 연결 */}
+            <ActionButton onClick={handleDeletePost}>삭제</ActionButton>
+          </>
+        )}
+      </PostActionContainer>
+
       <PostTitle>{post.title}</PostTitle>
       <PostMeta>
         작성자: {post.author || "익명"} | 작성일:{" "}
@@ -249,9 +308,16 @@ const PostDetailPage: React.FC = () => {
           comments.map((comment) => (
             <CommentItem key={comment.id}>
               <CommentActions>
-                <ActionButton onClick={() => handleEditClick(comment)}>
-                  수정
-                </ActionButton>
+                {currentUser && currentUser.id === Number(comment.author) && (
+                  <>
+                    <ActionButton onClick={() => handleEditCommentClick(comment)}>
+                      수정
+                    </ActionButton>
+                    <ActionButton onClick={() => handleDeleteComment(comment.id)}>
+                      삭제
+                    </ActionButton>
+                  </>
+                )}
               </CommentActions>
               <CommentAuthor>{comment.author}</CommentAuthor>
               <CommentContentDisplay>{comment.content}</CommentContentDisplay>

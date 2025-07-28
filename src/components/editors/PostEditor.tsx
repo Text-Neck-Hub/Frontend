@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // useEffect 추가
 import styled from "styled-components";
-import QuillEditor from "./QuillEditor";
+import QuillEditor from "./QuillEditor"; // QuillEditor 컴포넌트 불러오기
 import { postToolbarOptions } from "../../utils/toolbarOptions";
 
 const FormContainer = styled.div`
@@ -67,7 +67,8 @@ const SubmitButton = styled.button`
 `;
 
 interface PostEditorProps {
-  // 👈 PostWriteFormProps를 PostEditorProps로 변경!
+  initialTitle?: string; // ⭐️ 추가: 초기 제목
+  initialContent?: string; // ⭐️ 추가: 초기 내용
   onSubmit: (data: {
     title: string;
     content: string;
@@ -76,14 +77,20 @@ interface PostEditorProps {
   }) => void;
 }
 
-const PostEditor: React.FC<PostEditorProps> = ({ onSubmit }) => {
-  // 👈 PostWriteForm을 PostEditor로 변경!
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+const PostEditor: React.FC<PostEditorProps> = ({ onSubmit, initialTitle = "", initialContent = "" }) => {
+  // ⭐️ initial props를 초기값으로 사용
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
   const [thumbnailFile, setThumbnailFile] = useState<File | undefined>(
     undefined
   );
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+
+  // ⭐️ initialTitle 또는 initialContent가 변경될 때마다 상태 업데이트 (외부에서 값 주입 시)
+  useEffect(() => {
+    setTitle(initialTitle);
+    setContent(initialContent);
+  }, [initialTitle, initialContent]);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -101,8 +108,9 @@ const PostEditor: React.FC<PostEditorProps> = ({ onSubmit }) => {
 
   const handleSubmit = () => {
     onSubmit({ title, content, thumbnailFile, attachedFiles });
-    setTitle("");
-    setContent("");
+    // 제출 후 상태 리셋 (초기값으로 돌아가도록)
+    setTitle(initialTitle); 
+    setContent(initialContent);
     setThumbnailFile(undefined);
     setAttachedFiles([]);
   };
@@ -163,4 +171,4 @@ const PostEditor: React.FC<PostEditorProps> = ({ onSubmit }) => {
   );
 };
 
-export default PostEditor; // 👈 export default도 PostEditor로 변경!
+export default PostEditor;

@@ -27,7 +27,6 @@ export const PostListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ⭐️ 여기가 중요! boardType이 undefined일 경우 일찍 리턴해서 컴포넌트 렌더링을 막아!
   if (!boardType) {
     return (
       <PostContainer>
@@ -36,39 +35,44 @@ export const PostListPage: React.FC = () => {
     );
   }
 
-  // 이제 이 아래부터는 boardType이 항상 string임을 TypeScript가 보장해줘!
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
         const params: PaginationParams = { page: 1, limit: 10 };
 
-        // boardType은 이미 string임을 확신할 수 있어!
         const fetchedPosts = await getPostList(boardType, params);
 
-        setPosts(fetchedPosts);
+        // API 응답이 배열인지 확실하게 확인하는 방어 코드 추가
+        if (Array.isArray(fetchedPosts)) {
+          setPosts(fetchedPosts);
+        } else {
+          console.error("API가 예상치 못한 게시물 데이터 형식을 반환했습니다:", fetchedPosts);
+          setPosts([]); // 배열이 아니면 빈 배열로 설정하여 map 오류 방지
+          setError("게시물 목록을 불러오는 데 실패했습니다 (데이터 형식 오류).");
+        }
       } catch (err) {
         console.error(`게시물 목록 불러오기 실패 (${boardType} 게시판):`, err);
         setError(
           `"${boardType}" 게시판의 게시물 목록을 불러오는 데 실패했습니다.`
         );
+        setPosts([]); // 오류 발생 시 posts를 빈 배열로 초기화하여 map 오류 방지
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPosts(); // boardType 존재 여부를 이미 위에서 확인했으므로 바로 호출!
+    fetchPosts();
 
-  }, [boardType]); // boardType이 변경될 때마다 다시 불러옴.
+  }, [boardType]);
 
   const handleWriteNewPost = () => {
-    // boardType은 이미 string임을 확신할 수 있어!
     navigate(`/boards/${boardType}/posts/new/`);
   };
 
   return (
     <PostContainer>
-      <h1>{boardType} 목록</h1> {/* boardType은 이제 string이야! */}
+      <h1>{boardType} 목록</h1>
       <ButtonContainer>
         <CreateButton onClick={handleWriteNewPost} text="새 글 작성" />
       </ButtonContainer>
@@ -77,11 +81,15 @@ export const PostListPage: React.FC = () => {
         <p>게시물 로딩 중...</p>
       ) : error ? (
         <p style={{ color: "red" }}>오류: {error}</p>
-      ) : posts.length === 0 ? (
-        <p>게시물이 없습니다.</p>
       ) : (
-        // ⭐️ 이제 boardType이 string임을 TypeScript가 알고 있어!
-        <PostList posts={posts} boardSlug={boardType} />
+        // PostList 컴포넌트 내부에서 posts가 배열임을 방어하므로 여기서는 직접 넘깁니다.
+        // 다만, posts.length === 0 조건은 PostList 내부에서 처리되는 것이 더 자연스러울 수 있습니다.
+        // 현재 로직대로 posts가 비어있을 때 "게시물이 없습니다"를 PostListPage에서 처리
+        posts.length === 0 ? (
+          <p>게시물이 없습니다.</p>
+        ) : (
+          <PostList posts={posts} boardSlug={boardType} />
+        )
       )}
     </PostContainer>
   );

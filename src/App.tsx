@@ -67,6 +67,10 @@ const App: React.FC = () => {
               path="/boards/:boardType/posts/:postId/"
               element={<PostDetailPage />}
             />
+            <Route
+              path="/boards/:boardType/posts/:postId/edit"
+              element={<PostEditorPage />}
+            />
             <Route path="/angle" element={<AngleDetectPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/profile" element={<ProfilePage />} /> 
