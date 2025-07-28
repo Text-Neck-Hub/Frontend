@@ -8,7 +8,6 @@ import {
   deleteUserProfile,
 } from "../apis/auth";
 import { useAuth } from "../contexts/AuthContext";
-import { isOwner } from "../utils/profile";
 import { type UserProfile } from "../types/UserProfile";
 
 const ProfileContainer = styled.div`
@@ -107,7 +106,7 @@ const PreviewImage = styled.img`
 `;
 
 const ProfilePage: React.FC = () => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn,currentUser } = useAuth();
   const { id: profileIdParam } = useParams<{ id: string }>();
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -209,7 +208,7 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const isProfileOwner = userProfile ? isOwner(userProfile.email) : false;
+  const isProfileOwner = userProfile?.email === currentUser?.email;
 
   if (loading) {
     return (
