@@ -1,7 +1,7 @@
 export interface CommentProps {
   id: number;
   postId: number;
-  author: string;
+  author: number;
   content: string;
   createdAt: string;
   updatedAt?: string;
