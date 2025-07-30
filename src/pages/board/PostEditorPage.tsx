@@ -62,7 +62,7 @@ const PostEditorPage: React.FC = () => {
     const postData: PostDetailProps = {
       title: data.title,
       content: data.content,
-     
+      // created_at 등은 서버에서 생성되므로 보내지 않아도 됨
     };
 
     try {

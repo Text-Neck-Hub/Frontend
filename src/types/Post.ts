@@ -10,17 +10,12 @@ export interface PostListProps {
   posts: PostProps[];
 }
 
-export type PostDetailProps = {
-  id: number;
-  title: string;
+export interface PostDetailProps extends Omit<PostProps, 'id' | 'author' | 'createdAt'> {
+  id?: number;
+  author?: string;
+  createdAt?: string;
   content: string;
-  author: number; 
-  email: string;
-  board: number; 
-  created_at: string;
-  updated_at: string;
-  thumbnail: string | null;
- 
-  likes_count?: number; 
-  is_liked_by_user?: boolean; 
-};
+  views?: number;
+  likes?: number;
+  urls?: string[];
+}
