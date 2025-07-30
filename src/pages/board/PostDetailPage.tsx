@@ -9,11 +9,11 @@ import {
   deletePost,
   deleteComment,
 } from "../../apis/board";
-import { type PostDetailProps } from "../../types/Post";
-import { type CommentProps } from "../../types/Comment";
+import { type PostDetail } from "../../types/Post";
+import { type Comment } from "../../types/Comment";
 import { useAuth } from "../../contexts/AuthContext";
 
-// --- UI Components (이전과 동일하므로 생략) ---
+
 const PageContainer = styled.div`
   max-width: 800px;
   margin: 2rem auto;
@@ -102,48 +102,6 @@ const CommentSectionTitle = styled.h2`
   border-bottom: 1px solid #eee;
   padding-bottom: 0.5rem;
 `;
-
-interface CommentEditorProps {
-  initialContent: string;
-  onCommentSubmit: (content: string) => void;
-  onCancel?: () => void;
-  submitButtonText: string;
-}
-const CommentEditor = ({
-  initialContent,
-  onCommentSubmit,
-  onCancel,
-  submitButtonText,
-}: CommentEditorProps) => {
-  const [content, setContent] = useState(initialContent);
-
-  useEffect(() => {
-    setContent(initialContent);
-  }, [initialContent]);
-
-  const handleSubmit = () => {
-    onCommentSubmit(content);
-    setContent("");
-  };
-
-  return (
-    <div>
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={5}
-        style={{ width: "100%", marginBottom: "10px" }}
-      />
-      <button onClick={handleSubmit}>{submitButtonText}</button>
-      {onCancel && (
-        <button onClick={onCancel} style={{ marginLeft: "10px" }}>
-          취소
-        </button>
-      )}
-    </div>
-  );
-};
-
 const CommentListContainer = styled.div`
   margin-top: 2rem;
   border-top: 1px solid #eee;
@@ -203,6 +161,49 @@ const PostActionContainer = styled.div`
   margin-bottom: 1rem;
 `;
 
+interface CommentEditorProps {
+  initialContent: string;
+  onCommentSubmit: (content: string) => void;
+  onCancel?: () => void;
+  submitButtonText: string;
+}
+const CommentEditor = ({
+  initialContent,
+  onCommentSubmit,
+  onCancel,
+  submitButtonText,
+}: CommentEditorProps) => {
+  const [content, setContent] = useState(initialContent);
+
+  useEffect(() => {
+    setContent(initialContent);
+  }, [initialContent]);
+
+  const handleSubmit = () => {
+    onCommentSubmit(content);
+    setContent("");
+  };
+
+  return (
+    <div>
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        rows={5}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
+      <button onClick={handleSubmit}>{submitButtonText}</button>
+      {onCancel && (
+        <button onClick={onCancel} style={{ marginLeft: "10px" }}>
+          취소
+        </button>
+      )}
+    </div>
+  );
+};
+
+
+
 const PostDetailPage: React.FC = () => {
   const { boardType, postId: idFromParams } = useParams<{
     boardType: string;
@@ -212,8 +213,8 @@ const PostDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
-  const [post, setPost] = useState<PostDetailProps | null>(null);
-  const [comments, setComments] = useState<CommentProps[]>([]);
+  const [post, setPost] = useState<PostDetail | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -221,7 +222,7 @@ const PostDetailPage: React.FC = () => {
   const [editingCommentContent, setEditingCommentContent] =
     useState<string>("");
 
-  // ... (이전 코드들)
+  
 
   const fetchComments = useCallback(
     async (currentPostId: number) => {
@@ -233,11 +234,9 @@ const PostDetailPage: React.FC = () => {
         return;
       }
       try {
-        // getCommentList에 boardType 파라미터 추가!
-        const commentData = await getCommentList(currentPostId, boardType, {
-          page: 1,
-          limit: 10,
-        });
+        
+        const commentData = await getCommentList(currentPostId, boardType
+        );
         setComments(commentData);
       } catch (err) {
         console.error("댓글 목록을 불러오는 데 실패했습니다.", err);
@@ -258,7 +257,7 @@ const PostDetailPage: React.FC = () => {
       setError(null);
       const postData = await getPostDetail(boardType, postId);
       setPost(postData);
-      // fetchComments가 boardType을 사용하니, 이 의존성도 자연스럽게 연결돼야겠지?
+      
       await fetchComments(postId);
     } catch (err) {
       console.error("게시물 또는 댓글을 불러오는 데 실패했습니다.", err);
@@ -305,7 +304,7 @@ const PostDetailPage: React.FC = () => {
 
   // ... (나머지 코드들)
 
-  const handleEditCommentClick = useCallback((comment: CommentProps) => {
+  const handleEditCommentClick = useCallback((comment: Comment) => {
     setEditingCommentId(comment.id);
     setEditingCommentContent(comment.content);
   }, []);

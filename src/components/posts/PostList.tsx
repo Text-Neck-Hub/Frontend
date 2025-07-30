@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { Thumbnail } from "./Thumbnail";
+
 import { useNavigate } from "react-router-dom";
-import type { PostListProps } from "../../types/Post";
+import type { Post } from "../../types/Post";
 
 
 const PostListContainer = styled.div`
@@ -28,10 +28,8 @@ const Title = styled.h2`
   font-size: 1.2rem;
 `;
 
-export const PostList: React.FC<PostListProps & { boardSlug: string }> = ({ posts, boardSlug }) => {
+export const PostList: React.FC<{ posts: Post[]; boardSlug: string }> = ({ posts, boardSlug }) => {
   const navigate = useNavigate();
-
-  
 
   return (
     <PostListContainer>
@@ -43,7 +41,7 @@ export const PostList: React.FC<PostListProps & { boardSlug: string }> = ({ post
             navigate(`/boards/${boardSlug}/posts/${post.id}/`);
           }}
         >
-          {post.thumbnail && <Thumbnail src={post.thumbnail} />}
+          
           <Title>{post.title}</Title>
         </PostPreview>
       ))}

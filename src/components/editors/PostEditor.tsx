@@ -67,8 +67,8 @@ const SubmitButton = styled.button`
 `;
 
 interface PostEditorProps {
-  initialTitle?: string; // ⭐️ 추가: 초기 제목
-  initialContent?: string; // ⭐️ 추가: 초기 내용
+  initialTitle?: string; 
+  initialContent?: string; 
   onSubmit: (data: {
     title: string;
     content: string;

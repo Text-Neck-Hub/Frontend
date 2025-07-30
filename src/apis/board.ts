@@ -1,61 +1,51 @@
-import { type PaginationParams } from "../types/PaginationParams";
-import { type PostProps, type PostDetailProps } from "../types/Post";
+
+import { type Post, type PostDetail } from "../types/Post";
 import { Http } from "../types/Http";
-import { type CommentProps } from "../types/Comment";
+import { type Comment } from "../types/Comment";
 import { type Board } from "../types/Board";
-import { type LikeProps } from "../types/Like";
+
 
 
 export const getBoardList = async (): Promise<Board[]> =>
   await Http.get<Board[]>("/board/v1/");
 
-export const getPostList = async (
-  category: string,
-  params?: PaginationParams
-): Promise<PostProps[]> =>
-  await Http.get<PostProps[]>(`/board/v1/${category}/posts/`, params);
-
-export const getPostDetail = async (
-  category: string,
-  id: number
-): Promise<PostDetailProps> =>
-  await Http.get<PostDetailProps>(`/board/v1/${category}/posts/${id}/`);
-
 export const deletePost = async (category: string, id: number): Promise<void> =>
   await Http.delete(`/board/v1/${category}/posts/${id}/`);
-
+export const getPostList= async (category:string):Promise<Post[]>=>
+  await Http.get(`/board/v1/${category}/posts/`);
+export const getPostDetail= async (category:string,post_id:number):Promise<PostDetail>=>
+  await Http.get(`/board/v1/${category}/posts/${post_id}/`);
 export const updatePost = async (
   category: string,
   id: number,
-  postData: PostDetailProps
-): Promise<PostDetailProps> =>
-  await Http.put<PostDetailProps>(
+  postData: PostDetail
+): Promise<PostDetail> =>
+  await Http.put<PostDetail>(
     `/board/v1/${category}/posts/${id}/`,
     postData
   );
 
 export const writePost = async (
   category: string,
-  postData: PostDetailProps
-): Promise<PostDetailProps> =>
-  await Http.post<PostDetailProps>(`/board/v1/${category}/posts/`, postData);
+  postData: PostDetail
+): Promise<PostDetail> =>
+  await Http.post<PostDetail>(`/board/v1/${category}/posts/`, postData);
 
 export const getCommentList = async (
   postId: number,
   category: string,
-  params?: PaginationParams
-): Promise<CommentProps[]> =>
-  await Http.get<CommentProps[]>(
-    `/board/v1/${category}/posts/${postId}/comments/`,
-    params
+
+): Promise<Comment[]> =>
+  await Http.get<Comment[]>(
+    `/board/v1/${category}/posts/${postId}/comments/`
   );
 
 export const writeComment = async (
   postId: number,
   category: string,
   content: string
-): Promise<CommentProps> =>
-  await Http.post<CommentProps>(
+): Promise<Comment> =>
+  await Http.post<Comment>(
     `/board/v1/${category}/posts/${postId}/comments/`,
     {
       content,
@@ -67,8 +57,8 @@ export const updateComment = async (
   postId: number,
   commentId: number,
   content: string
-): Promise<CommentProps> =>
-  await Http.put<CommentProps>(
+): Promise<Comment> =>
+  await Http.put<Comment>(
     `/board/v1/${category}/posts/${postId}/comments/${commentId}/`,
     { content }
   );
@@ -82,19 +72,4 @@ export const deleteComment = async (
     `/board/v1/${category}/posts/${postId}/comments/${commentId}/`
   );
 
-export const addLike = async (
-  category: string,
-  postId: number
-): Promise<LikeProps> =>
-  await Http.post<LikeProps>(
-    `/board/v1/${category}/posts/${postId}/likes/`,
-    {}
-  );
 
-export const deleteLike = async (
-  category: string,
-  postId: number
-): Promise<void> =>
-  await Http.delete(
-    `/board/v1/${category}/posts/${postId}/likes/`
-  );

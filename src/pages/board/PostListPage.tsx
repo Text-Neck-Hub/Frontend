@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { PostList } from "../../components/posts/PostList";
 import { getPostList } from "../../apis/board";
-import { type PostProps } from "../../types/Post";
-import type { PaginationParams } from "../../types/PaginationParams";
+import { type Post } from "../../types/Post";
 import { useParams, useNavigate } from "react-router-dom";
 import { CreateButton } from "../../components/buttons/Button";
 
@@ -23,7 +22,7 @@ export const PostListPage: React.FC = () => {
   const { boardType } = useParams<{ boardType: string }>();
   const navigate = useNavigate();
 
-  const [posts, setPosts] = useState<PostProps[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,9 +38,9 @@ export const PostListPage: React.FC = () => {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const params: PaginationParams = { page: 1, limit: 10 };
+        
 
-        const fetchedPosts = await getPostList(boardType, params);
+        const fetchedPosts = await getPostList(boardType);
 
         // API 응답이 배열인지 확실하게 확인하는 방어 코드 추가
         if (Array.isArray(fetchedPosts)) {

@@ -6,11 +6,7 @@ import axios, {
 
 import { getCookie } from "../utils/cookie";
 import { refreshAccessToken } from "./auth";
-export interface ApiResponse<T> {
-  statusCode: number;
-  message: string;
-  data: T;
-}
+
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: "https://api.textneckhub.p-e.kr",
