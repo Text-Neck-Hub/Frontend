@@ -78,7 +78,7 @@ interface PostEditorProps {
 }
 
 const PostEditor: React.FC<PostEditorProps> = ({ onSubmit, initialTitle = "", initialContent = "" }) => {
-  // ⭐️ initial props를 초기값으로 사용
+  
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [thumbnailFile, setThumbnailFile] = useState<File | undefined>(
@@ -86,7 +86,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ onSubmit, initialTitle = "", in
   );
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
 
-  // ⭐️ initialTitle 또는 initialContent가 변경될 때마다 상태 업데이트 (외부에서 값 주입 시)
+  
   useEffect(() => {
     setTitle(initialTitle);
     setContent(initialContent);
@@ -108,7 +108,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ onSubmit, initialTitle = "", in
 
   const handleSubmit = () => {
     onSubmit({ title, content, thumbnailFile, attachedFiles });
-    // 제출 후 상태 리셋 (초기값으로 돌아가도록)
+    
     setTitle(initialTitle); 
     setContent(initialContent);
     setThumbnailFile(undefined);

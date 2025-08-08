@@ -13,13 +13,15 @@ import Navbar, { type NavLink } from "./components/Navbar";
 
 import { LoginPage } from "./pages/LoginPage";
 import { BoardSelectionPage } from "./pages/board/BoardSelectionPage";
-import { AngleDetectPage } from "./pages/AngleDetectPage";
+import { AngleDetectPage } from "./pages/core/AngleDetectPage";
 
 import { AuthCallbackPage } from "./pages/AuthCallbackPage";
 import { PostListPage } from "./pages/board/PostListPage";
 import PostDetailPage from "./pages/board/PostDetailPage";
 import PostEditorPage from "./pages/board/PostEditorPage";
 import ProfilePage from "./pages/ProfilePage";
+
+import { DashBoardPage } from "./pages/core/DashBoardPage";
 
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
@@ -74,6 +76,7 @@ const App: React.FC = () => {
             <Route path="/angle" element={<AngleDetectPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/profile" element={<ProfilePage />} /> 
+            <Route path="/core" element={<DashBoardPage />} /> 
             <Route path="*" element={<div>페이지를 찾을 수 없습니다!</div>} />
           </Routes>
         </AppContainer>
@@ -91,7 +94,8 @@ const NavigationContainer: React.FC = () => {
   const baseLinks: NavLink[] = [
     { text: "홈", url: "/" },
     { text: "게시판", url: "/boards" },
-    { text: "자세분석", url: "/angle" },
+    { text: "자세분석", url: "/core" },
+   
   ];
 
   const authLink: NavLink[] = isLoggedIn
