@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 
 const Container = styled.div`
   max-width: 700px;
@@ -15,6 +15,7 @@ const Video = styled.video`
   height: 240px;
   background: #222;
   border-radius: 1rem;
+  display: none;
 `;
 
 const Canvas = styled.canvas`
@@ -28,13 +29,46 @@ const AngleDisplay = styled.div<{ $isGoodPosture: boolean }>`
   margin-top: 1rem;
   font-size: 1.5rem;
   font-weight: bold;
-  color: ${props => (props.$isGoodPosture ? 'green' : 'red')};
+  color: ${(props) => (props.$isGoodPosture ? "green" : "red")};
 `;
 
 export const AngleDetectPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [angle, setAngle] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const goodPostureThreshold = 100;
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(
+        "https://audio-previews.elements.envatousercontent.com/files/286545509/preview.mp3?response-content-disposition=attachment%3B+filename%3D%22MV27TES-alarm.mp3%22"
+      );
+      audioRef.current.loop = true;
+      audioRef.current.volume = 0.6;
+    }
+
+    if (angle !== null) {
+      if (angle > goodPostureThreshold) {
+        if (audioRef.current.paused) {
+          audioRef.current
+            .play()
+            .catch((e) => console.error("오디오 재생 오류:", e));
+        }
+      } else {
+        if (!audioRef.current.paused) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }
+      }
+    } else {
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    }
+  }, [angle]);
 
   useEffect(() => {
     let wss: WebSocket | null = null;
@@ -50,54 +84,67 @@ export const AngleDetectPage: React.FC = () => {
           videoRef.current.play();
         }
 
-        wss = new WebSocket('wss://api.textneckhub.p-e.kr/core/v1/ws/textneck/'); 
+        wss = new WebSocket(
+          "wss://api.textneckhub.p-e.kr/core/v1/ws/textneck/"
+        );
 
         wss.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.has_angle && canvasRef.current) {
             setAngle(data.angle_value);
             lastImg = new window.Image();
-            lastImg.onload = function() {
-              const ctx = canvasRef.current!.getContext('2d');
+            lastImg.onload = function () {
+              const ctx = canvasRef.current!.getContext("2d");
               if (ctx) {
                 ctx.clearRect(0, 0, 320, 240);
                 ctx.drawImage(lastImg!, 0, 0, 320, 240);
               }
             };
-            lastImg.src = 'data:image/jpeg;base64,' + data.img;
+            lastImg.src = "data:image/jpeg;base64," + data.img;
           } else {
             setAngle(null);
           }
         };
 
         wss.onopen = () => {
-          console.log('WebSocket connected');
+          console.log("WebSocket connected");
         };
 
         wss.onclose = () => {
-          console.log('WebSocket disconnected');
+          console.log("WebSocket disconnected");
           setAngle(null);
         };
 
         wss.onerror = (error) => {
-          console.error('WebSocket error:', error);
+          console.error("WebSocket error:", error);
           setAngle(null);
         };
 
         interval = window.setInterval(() => {
-          if (!videoRef.current || !canvasRef.current || !wss || wss.readyState !== WebSocket.OPEN) return;
-          
-          const tempCanvas = document.createElement('canvas');
-          const tempContext = tempCanvas.getContext('2d');
+          if (
+            !videoRef.current ||
+            !canvasRef.current ||
+            !wss ||
+            wss.readyState !== WebSocket.OPEN
+          )
+            return;
+
+          const tempCanvas = document.createElement("canvas");
+          const tempContext = tempCanvas.getContext("2d");
           tempCanvas.width = videoRef.current.videoWidth;
           tempCanvas.height = videoRef.current.videoHeight;
-          tempContext?.drawImage(videoRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
-          
-          const dataURL = tempCanvas.toDataURL('image/jpeg', 0.8);
-          const base64 = dataURL.split(',')[1];
-          wss.send(base64);
-        }, 100);
+          tempContext?.drawImage(
+            videoRef.current,
+            0,
+            0,
+            tempCanvas.width,
+            tempCanvas.height
+          );
 
+          const dataURL = tempCanvas.toDataURL("image/jpeg", 0.8);
+          const base64 = dataURL.split(",")[1];
+          wss.send(base64);
+        }, 1000);
       } catch (err) {
         console.error("Error accessing webcam:", err);
       }
@@ -109,6 +156,11 @@ export const AngleDetectPage: React.FC = () => {
       if (interval) window.clearInterval(interval);
       if (wss) wss.close();
       if (stream) stream.getTracks().forEach((track) => track.stop());
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
     };
   }, []);
 
@@ -118,14 +170,12 @@ export const AngleDetectPage: React.FC = () => {
       <Video ref={videoRef} autoPlay />
       <Canvas ref={canvasRef} width={320} height={240} />
       {angle !== null && (
-        <AngleDisplay $isGoodPosture={angle >= 160}>
+        <AngleDisplay $isGoodPosture={angle <= goodPostureThreshold}>
           각도: {angle.toFixed(1)}°
         </AngleDisplay>
       )}
       {angle === null && (
-        <AngleDisplay $isGoodPosture={true}>
-          각도: 감지 중...
-        </AngleDisplay>
+        <AngleDisplay $isGoodPosture={true}>각도: 감지 중...</AngleDisplay>
       )}
     </Container>
   );

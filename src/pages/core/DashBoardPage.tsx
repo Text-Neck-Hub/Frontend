@@ -4,7 +4,6 @@ import { type MySetting } from "../../types/UserSetting";
 import { getUserSetting } from "../../apis/core";
 import { LineGraph } from "../../components/graphs/LineGraph";
 import { AngleOption } from "../../components/options/AngleOption";
-// import { type OptionList } from "../../types/UserSetting";
 
 const Container = styled.div`
   max-width: 900px;
