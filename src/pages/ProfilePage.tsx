@@ -1,4 +1,3 @@
-import useLogout from "../hooks/useLogout";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
@@ -106,7 +105,7 @@ const PreviewImage = styled.img`
 `;
 
 const ProfilePage: React.FC = () => {
-  const { isLoggedIn,currentUser } = useAuth();
+  const { isLoggedIn, currentUser, logout } = useAuth();
   const { id: profileIdParam } = useParams<{ id: string }>();
 
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -190,8 +189,6 @@ const ProfilePage: React.FC = () => {
     setPreview(userProfile?.profile_picture || "");
   };
 
-  const logout = useLogout();
-
   const handleDelete = async () => {
     if (!window.confirm("정말로 회원 탈퇴 ㄱㄱ?")) return;
     setLoading(true);
@@ -199,11 +196,11 @@ const ProfilePage: React.FC = () => {
     try {
       await deleteUserProfile();
       alert("회원 탈퇴 되었습니다.");
-      await logout(true);
     } catch (err) {
       console.error(err);
       setError("회원 탈퇴 중 오류가 발생했습니다.");
     } finally {
+      logout();
       setLoading(false);
     }
   };
