@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -35,8 +35,13 @@ const AngleDisplay = styled.div<{ $isGoodPosture: boolean }>`
 export const AngleDetectPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [angle, setAngle] = useState<number | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [angle, setAngle] = useState<number | null>(null);
+  const [paused, setPaused] = useState<boolean>(true);
+  const [statusText, setStatusText] = useState<string>("연결 중...");
+  const [wsReady, setWsReady] = useState<boolean>(false);
 
   const goodPostureThreshold = 100;
 
@@ -51,13 +56,11 @@ export const AngleDetectPage: React.FC = () => {
 
     if (angle !== null) {
       if (angle > goodPostureThreshold) {
-        if (audioRef.current.paused) {
-          audioRef.current
-            .play()
-            .catch((e) => console.error("오디오 재생 오류:", e));
+        if (audioRef.current && audioRef.current.paused) {
+          audioRef.current.play().catch(() => {});
         }
       } else {
-        if (!audioRef.current.paused) {
+        if (audioRef.current && !audioRef.current.paused) {
           audioRef.current.pause();
           audioRef.current.currentTime = 0;
         }
@@ -71,68 +74,108 @@ export const AngleDetectPage: React.FC = () => {
   }, [angle]);
 
   useEffect(() => {
-    let wss: WebSocket | null = null;
+    let interval: number | null = null;
     let stream: MediaStream | null = null;
-    let interval: number;
-    let lastImg: HTMLImageElement | null = null;
 
     const setup = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play();
+          videoRef.current.play().catch(() => {});
         }
 
-        wss = new WebSocket(
+        const wss = new WebSocket(
           "wss://api.textneckhub.p-e.kr/core/v1/ws/textneck/"
         );
+        wsRef.current = wss;
+
+        wss.onopen = () => {
+          setWsReady(true);
+          setStatusText("연결됨: 초기화 중");
+          wss.send("init");
+        };
 
         wss.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          if (data.has_angle && canvasRef.current) {
-            setAngle(data.angle_value);
-            lastImg = new window.Image();
-            lastImg.onload = function () {
-              const ctx = canvasRef.current!.getContext("2d");
-              if (ctx) {
-                ctx.clearRect(0, 0, 320, 240);
-                ctx.drawImage(lastImg!, 0, 0, 320, 240);
+          try {
+            const data = JSON.parse(event.data);
+
+            if (typeof data.status === "string") {
+              if (data.status === "initialized") {
+                setPaused(true);
+                setStatusText("대기: 초기화 완료");
+              } else if (data.status === "paused") {
+                setPaused(true);
+                setStatusText("일시중지");
+              } else if (data.status === "resumed") {
+                setPaused(false);
+                setStatusText("실행 중");
+              } else if (data.status === "stopping") {
+                setStatusText("종료 중");
               }
-            };
-            lastImg.src = "data:image/jpeg;base64," + data.img;
-          } else {
+              return;
+            }
+
+            const hasAngle =
+              data.has_angle ||
+              typeof data.angle_value === "number" ||
+              typeof data.neck_angle_deg === "number";
+
+            if (hasAngle && canvasRef.current) {
+              const val =
+                typeof data.angle_value === "number"
+                  ? data.angle_value
+                  : typeof data.neck_angle_deg === "number"
+                  ? data.neck_angle_deg
+                  : null;
+              if (val !== null) setAngle(val);
+
+              if (data.img) {
+                const img = new Image();
+                img.onload = () => {
+                  const ctx = canvasRef.current!.getContext("2d");
+                  if (ctx) {
+                    ctx.clearRect(0, 0, 320, 240);
+                    ctx.drawImage(img, 0, 0, 320, 240);
+                  }
+                };
+                img.src = "data:image/jpeg;base64," + data.img;
+              }
+            } else {
+              setAngle(null);
+            }
+          } catch {
             setAngle(null);
           }
         };
 
-        wss.onopen = () => {
-          console.log("WebSocket connected");
-        };
-
         wss.onclose = () => {
-          console.log("WebSocket disconnected");
+          setWsReady(false);
+          setPaused(true);
           setAngle(null);
+          setStatusText("연결 끊김");
         };
 
-        wss.onerror = (error) => {
-          console.error("WebSocket error:", error);
+        wss.onerror = () => {
+          setWsReady(false);
+          setPaused(true);
           setAngle(null);
+          setStatusText("오류 발생");
         };
 
         interval = window.setInterval(() => {
           if (
             !videoRef.current ||
-            !canvasRef.current ||
-            !wss ||
-            wss.readyState !== WebSocket.OPEN
+            !wsRef.current ||
+            wsRef.current.readyState !== WebSocket.OPEN ||
+            paused
           )
             return;
 
           const tempCanvas = document.createElement("canvas");
           const tempContext = tempCanvas.getContext("2d");
-          tempCanvas.width = videoRef.current.videoWidth;
-          tempCanvas.height = videoRef.current.videoHeight;
+          tempCanvas.width = videoRef.current.videoWidth || 320;
+          tempCanvas.height = videoRef.current.videoHeight || 240;
           tempContext?.drawImage(
             videoRef.current,
             0,
@@ -143,10 +186,10 @@ export const AngleDetectPage: React.FC = () => {
 
           const dataURL = tempCanvas.toDataURL("image/jpeg", 0.8);
           const base64 = dataURL.split(",")[1];
-          wss.send(base64);
+          wsRef.current.send(base64);
         }, 1000);
-      } catch (err) {
-        console.error("Error accessing webcam:", err);
+      } catch {
+        setStatusText("웹캠 접근 실패");
       }
     };
 
@@ -154,19 +197,79 @@ export const AngleDetectPage: React.FC = () => {
 
     return () => {
       if (interval) window.clearInterval(interval);
-      if (wss) wss.close();
-      if (stream) stream.getTracks().forEach((track) => track.stop());
+      if (wsRef.current) {
+        try {
+          wsRef.current.close();
+        } catch {}
+        wsRef.current = null;
+      }
+      if (stream) stream.getTracks().forEach((t) => t.stop());
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
         audioRef.current = null;
       }
     };
+  }, [paused]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN)
+          return;
+        if (paused) {
+          wsRef.current.send("resume");
+        } else {
+          wsRef.current.send("pause");
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [paused]);
+
+  const onClickResume = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send("resume");
+    }
+  }, []);
+
+  const onClickPause = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send("pause");
+    }
+  }, []);
+
+  const onClickStop = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send("stop");
+      } catch {}
+      try {
+        wsRef.current.close();
+      } catch {}
+    }
   }, []);
 
   return (
     <Container>
       <h1>거북목 탐지! 실시간 각도 측정</h1>
+      <div>
+        {statusText}
+        {wsReady ? "" : ""}
+      </div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <button onClick={onClickResume} disabled={!wsReady || !paused}>
+          시작/재개
+        </button>
+        <button onClick={onClickPause} disabled={!wsReady || paused}>
+          일시중지
+        </button>
+        <button onClick={onClickStop} disabled={!wsReady}>
+          종료
+        </button>
+      </div>
       <Video ref={videoRef} autoPlay />
       <Canvas ref={canvasRef} width={320} height={240} />
       {angle !== null && (
