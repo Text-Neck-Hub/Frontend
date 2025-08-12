@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { type MySetting } from "../../types/UserSetting";
-import { getUserSetting } from "../../apis/core";
-import { LineGraph } from "../../components/graphs/LineGraph";
-import { AngleOption } from "../../components/options/AngleOption";
+import { getLogs } from "../../apis/core";
+// import { LineGraph } from "../../components/graphs/LineGraph";
+import { type Logs, type Log } from "../../types/Logs";
 
 const Container = styled.div`
   max-width: 900px;
@@ -13,7 +12,6 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 2.5rem;
-
   background-color: #ffffff;
   border-radius: 18px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -39,16 +37,6 @@ const SectionWrapper = styled.div`
   align-items: center;
 `;
 
-const MessageText = styled.p`
-  font-size: 1.3rem;
-  color: #555;
-  margin-top: 1.5rem;
-  font-weight: 500;
-  background-color: #e6f7ff;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-`;
-
 const ErrorText = styled.div`
   font-size: 1.5rem;
   color: #e74c3c;
@@ -71,25 +59,48 @@ const LoadingText = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 `;
 
+// const EmptyText = styled.div`
+//   font-size: 1.2rem;
+//   color: #6b7280;
+//   text-align: center;
+//   padding: 1rem 0;
+// `;
+
 export const DashBoardPage: React.FC = () => {
-  const [setting, setSetting] = useState<MySetting | null>(null);
+  const [logs, setLogs] = useState<Logs | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchSetting = async () => {
-      try {
-        const response: MySetting = await getUserSetting();
-        setSetting(response);
-      } catch (err) {
-        console.error("사용자 설정을 불러오는데 실패했어요! 😢", err);
-        setError(
-          "데이터 로딩 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
-        );
-      }
-    };
+  
 
-    fetchSetting();
+  const fetchAndNormalize = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const logs: Logs = await getLogs();
+      
+
+      setLogs(logs);
+    } catch (e) {
+      setError("데이터 로딩 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAndNormalize();
+  }, [fetchAndNormalize]);
+
+  const series = useMemo<Log[]>(() => logs?.logs ?? [], [logs]);
+  console.log("Series:", series);
+  if (loading) {
+    return (
+      <Container>
+        <LoadingText>로그를 불러오는 중...</LoadingText>
+      </Container>
+    );
+  }
 
   if (error) {
     return (
@@ -99,27 +110,13 @@ export const DashBoardPage: React.FC = () => {
     );
   }
 
-  if (!setting) {
-    return (
-      <Container>
-        <LoadingText>설정 정보를 불러오는 중...</LoadingText>
-      </Container>
-    );
-  }
-
   return (
     <Container>
       <Title>거북목 탐지 서비스 대시보드 ✨</Title>
 
       <SectionWrapper>
-        <LineGraph angles={setting.settings.logs} />
+        
       </SectionWrapper>
-
-      <SectionWrapper>
-        <AngleOption option={{ options: setting.settings.options }} />
-      </SectionWrapper>
-
-      <MessageText>메시지: {setting.message}</MessageText>
     </Container>
   );
 };
